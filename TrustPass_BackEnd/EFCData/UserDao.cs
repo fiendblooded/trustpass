@@ -12,17 +12,18 @@ public class UserDao : IUserService
         _context = context;
     }
     
-    public Task<User> GetUserAsync(long id)
+    public async Task<User?> GetUserAsync(long id)
     {
-        //print id to console
         Console.WriteLine($"get-id: {id}");
-        throw new NotImplementedException();
+        return await _context.Users!.FindAsync(id);
     }
 
-    public Task<User> CreateUserAsync(User user)
+    public async Task<User?> CreateUserAsync(User user)
     {
         Console.WriteLine($"user: {user}");
-        throw new NotImplementedException();
+        await _context.Users!.AddAsync(user);
+        await _context.SaveChangesAsync();
+        return await _context.Users!.FindAsync(user.id);
     }
 
     public Task<User> UpdateUserAsync(User user)

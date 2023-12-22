@@ -18,9 +18,16 @@ public class UserController : ControllerBase
     }
     
     [HttpGet("{id:long}", Name = "GetUser")]
-    public async Task<User> GetUser([FromRoute] long id)
+    public async Task<User?> GetUser([FromRoute] long id)
     {
         Console.WriteLine($"GetUser({id})");
         return await _userService.GetUserAsync(id);
+    }
+    
+    [HttpPost]
+    public async Task<User?> CreateUser([FromBody] User user)
+    {
+        Console.WriteLine($"CreateUser({user})");
+        return await _userService.CreateUserAsync(user);
     }
 }

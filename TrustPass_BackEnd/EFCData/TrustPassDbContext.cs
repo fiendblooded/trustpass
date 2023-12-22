@@ -5,24 +5,20 @@ namespace EFCData;
 
 public class TrustPassDbContext : DbContext
 {
-    public DbSet<User>? Users { get; set; } = null;
+    public DbSet<User>? Users { get; set; }
 
     
-    public TrustPassDbContext(DbContextOptions<TrustPassDbContext> options) : base(options)
-    {
-    }
+    public TrustPassDbContext(){}
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         // use postgresql
-        // optionsBuilder.UseNpgsql("Host=localhost;Database=trustpass;Username=postgres;Password=postgres");
-        
-        // use sqlite
-        // optionsBuilder.UseSqlite("Data Source=trustpass.db");
+        optionsBuilder.UseNpgsql("Host=localhost;Database=trustpass;Username=postgres;Password=postgres");
     }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>().Property(u => u.id).IsRequired();
+        //define primary key
+        modelBuilder.Entity<User>().HasKey(u => u.id);
     }
 }
