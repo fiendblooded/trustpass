@@ -23,11 +23,24 @@ public class UserController : ControllerBase
         Console.WriteLine($"GetUser({id})");
         return await _userService.GetUserAsync(id);
     }
-    
+
+    [HttpGet("mongo/{id:long}", Name = "GetMongoUser")]
+    public async Task<MongoUser?> GetMongoUser([FromRoute] long id)
+    {
+        Console.WriteLine($"GetMongoUser({id})");
+        return await _userService.GetMongoUserAsync(id);
+    }
+
     [HttpPost]
     public async Task<User?> CreateUser([FromBody] User user)
     {
         Console.WriteLine($"CreateUser({user})");
         return await _userService.CreateUserAsync(user);
+    }
+    [HttpPost("mongo")]
+    public async Task<MongoUser?> CreateMongoUser([FromBody] MongoUser user)
+    {
+        Console.WriteLine($"CreateMongoUser({user})");
+        return await _userService.CreateMongoUserAsync(user);
     }
 }

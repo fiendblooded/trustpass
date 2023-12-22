@@ -3,12 +3,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EFCData;
 
-public class TrustPassDbContext : DbContext
+public class PostgresDbContext : DbContext
 {
     public DbSet<User>? Users { get; set; }
 
     
-    public TrustPassDbContext(){}
+    public PostgresDbContext(){}
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

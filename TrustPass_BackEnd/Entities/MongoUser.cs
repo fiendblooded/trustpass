@@ -1,11 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿namespace Entities;
 
-namespace Entities;
-
-[Table("users")]
-public class User
+public class MongoUser
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long id { get; set; }
     public string? first_name { get; set; }
     public string? last_name { get; set; }
