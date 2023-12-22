@@ -17,6 +17,14 @@ public class UserController : ControllerBase
         _userService = userService;
     }
     
+    
+    [HttpGet]
+    public async Task<IEnumerable<User>> GetUsers()
+    {
+        Console.WriteLine("GetUsers()");
+        return await _userService.GetUsersAsync();
+    }
+    
     [HttpGet("{id:long}", Name = "GetUser")]
     public async Task<User?> GetUser([FromRoute] long id)
     {
@@ -29,6 +37,7 @@ public class UserController : ControllerBase
     {
         Console.WriteLine($"GetMongoUser({id})");
         return await _userService.GetMongoUserAsync(id);
+        return null;
     }
 
     [HttpPost]
@@ -42,5 +51,20 @@ public class UserController : ControllerBase
     {
         Console.WriteLine($"CreateMongoUser({user})");
         return await _userService.CreateMongoUserAsync(user);
+        return null;
+    }
+    
+    [HttpPut]
+    public async Task<User?> UpdateUser([FromBody] User user)
+    {
+        Console.WriteLine($"UpdateUser({user})");
+        return await _userService.UpdateUserAsync(user);
+    }
+    
+    [HttpDelete("{id:long}")]
+    public async Task DeleteUser([FromRoute] long id)
+    {
+        Console.WriteLine($"DeleteUser({id})");
+        await _userService.DeleteUserAsync(id);
     }
 }

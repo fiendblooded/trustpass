@@ -1,5 +1,6 @@
 ﻿using Contracts;
 using Entities;
+using Microsoft.EntityFrameworkCore;
 using MongoFramework.Linq;
 
 namespace EFCData;
@@ -15,6 +16,13 @@ public class UserDao : IUserService
         _mongoContext = mongoContext;
     }
     
+    
+    public async Task<ICollection<User>> GetUsersAsync()
+    {
+        Console.WriteLine("get-all");
+        return await EntityFrameworkQueryableExtensions.ToListAsync(_context.Users!);
+    }
+    
     public async Task<User?> GetUserAsync(long id)
     {
         Console.WriteLine($"get-id: {id}");
@@ -23,7 +31,7 @@ public class UserDao : IUserService
     public async Task<MongoUser?> GetMongoUserAsync(long id)
     {
         Console.WriteLine($"get-id: {id}");
-        return await _mongoContext.Users!.FirstOrDefaultAsync(u => u.id == id);
+        return await QueryableAsyncExtensions.FirstOrDefaultAsync(_mongoContext.Users!, u => u.id == id);
     }
 
     public async Task<User?> CreateUserAsync(User user)
@@ -38,18 +46,24 @@ public class UserDao : IUserService
         Console.WriteLine($"user: {user}");
         _mongoContext.Users!.Add(user);
         await _mongoContext.SaveChangesAsync();
-        return await _mongoContext.Users!.FirstOrDefaultAsync(u => u.id == user.id);
+        return await QueryableAsyncExtensions.FirstOrDefaultAsync(_mongoContext.Users!, u => u.id == user.id);
     }
 
-    public Task<User> UpdateUserAsync(User user)
+    public async Task<User?> UpdateUserAsync(User user)
     {
         Console.WriteLine($"update-user: {user}");
-        throw new NotImplementedException();
+        _context.Users!.Update(user);
+        await _context.SaveChangesAsync();
+        return await _context.Users!.FindAsync(user.id);
     }
 
-    public Task DeleteUserAsync(string id)
+    public async Task DeleteUserAsync(long id)
     {
         Console.WriteLine($"delete-id: {id}");
-        throw new NotImplementedException();
+        //LINQ to remove by id
+        var user = await _context.Users!.FindAsync(id);
+        if (user != null)
+            _context.Users!.Remove(user);
+        await _context.SaveChangesAsync();
     }
 }

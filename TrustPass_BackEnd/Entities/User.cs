@@ -11,4 +11,6 @@ public class User
     public string? last_name { get; set; }
     public string? email { get; set; }
     public string? sso { get; set; }
+    
+    public User(){}
 }
