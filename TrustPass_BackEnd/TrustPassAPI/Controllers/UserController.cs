@@ -19,7 +19,7 @@ public class UserController : ControllerBase
     
     
     [HttpGet]
-    public async Task<IEnumerable<User>> GetUsers()
+    public async Task<ICollection<User>> GetUsers()
     {
         Console.WriteLine("GetUsers()");
         return await _userService.GetUsersAsync();
