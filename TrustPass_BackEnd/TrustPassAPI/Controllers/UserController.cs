@@ -8,12 +8,10 @@ namespace TrustPassAPI.Controllers;
 [Route("[controller]")]
 public class UserController : ControllerBase
 {
-    private readonly ILogger<UserController> _logger;
     private readonly IUserService _userService;
     
-    public UserController(ILogger<UserController> logger, IUserService userService)
+    public UserController(IUserService userService)
     {
-        _logger = logger;
         _userService = userService;
     }
     
@@ -31,32 +29,34 @@ public class UserController : ControllerBase
         Console.WriteLine($"GetUser({id})");
         return await _userService.GetUserAsync(id);
     }
-
-    [HttpGet("mongo/{id:long}", Name = "GetMongoUser")]
-    public async Task<MongoUser?> GetMongoUser([FromRoute] long id)
-    {
-        Console.WriteLine($"GetMongoUser({id})");
-        return await _userService.GetMongoUserAsync(id);
-        return null;
-    }
+    // [HttpGet("mongo/{id:long}", Name = "GetMongoUser")]
+    // public async Task<MongoUser?> GetMongoUser([FromRoute] long id)
+    // {
+    //     Console.WriteLine($"GetMongoUser({id})");
+    //     return await _userService.GetMongoUserAsync(id);
+    // }
 
     [HttpPost]
     public async Task<User?> CreateUser([FromBody] User user)
     {
+        //should be done in the database trigger?
+        user.CreatedAt = DateTime.UtcNow;
+        user.UpdatedAt = DateTime.UtcNow;
         Console.WriteLine($"CreateUser({user})");
         return await _userService.CreateUserAsync(user);
     }
-    [HttpPost("mongo")]
-    public async Task<MongoUser?> CreateMongoUser([FromBody] MongoUser user)
-    {
-        Console.WriteLine($"CreateMongoUser({user})");
-        return await _userService.CreateMongoUserAsync(user);
-        return null;
-    }
+    // [HttpPost("mongo")]
+    // public async Task<MongoUser?> CreateMongoUser([FromBody] MongoUser user)
+    // {
+    //     Console.WriteLine($"CreateMongoUser({user})");
+    //     return await _userService.CreateMongoUserAsync(user);
+    //     return null;
+    // }
     
     [HttpPut]
     public async Task<User?> UpdateUser([FromBody] User user)
     {
+        user.UpdatedAt = DateTime.UtcNow;
         Console.WriteLine($"UpdateUser({user})");
         return await _userService.UpdateUserAsync(user);
     }

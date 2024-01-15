@@ -11,6 +11,8 @@ builder.Services.AddControllers();
 
 //BB: add user service
 builder.Services.AddScoped<IUserService, UserDao>();
+builder.Services.AddScoped<IMatchService, MatchDao>();
+builder.Services.AddScoped<ITicketService, TicketDao>();
 builder.Services.AddDbContext<PostgresDbContext>();
 
 //BB: setting up MongoDB dependency injection

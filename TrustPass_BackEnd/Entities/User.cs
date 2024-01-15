@@ -6,11 +6,13 @@ namespace Entities;
 public class User
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public long id { get; set; }
-    public string? first_name { get; set; }
-    public string? last_name { get; set; }
-    public string? email { get; set; }
-    public string? sso { get; set; }
+    public int Id { get; set; }
+    public string? ExternalId { get; set; }
+    public string? IdentityHash { get; set; }
     
-    public User(){}
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    
+    public List<Match> Matches { get; } = new();
+    public List<Ticket> Tickets { get; } = new();
 }
