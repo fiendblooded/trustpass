@@ -8,52 +8,109 @@ namespace TrustPassAPI.Controllers;
 [Route("[controller]")]
 public class TicketController(ITicketService ticketService) : ControllerBase
 {
+    
+    [HttpGet]
+    [Route("{userId:long}/{matchId:long}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Ticket>> GetTicket([FromRoute] long userId, [FromRoute] long matchId)
+    {
+        try
+        {
+            var ticket = await ticketService.GetTicketAsync(userId, matchId);
+            return ticket != null ? Ok(ticket) : NotFound();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
 
     [HttpGet]
-    [Route("user/{id:long}")]
-    public async Task<ICollection<Ticket>> GetTicketsByUserId([FromRoute] long userId)
+    [Route("user/{userId:long}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ICollection<Ticket>>> GetTicketsByUserId([FromRoute] long userId)
     {
-        Console.WriteLine($"GetTicketsByUserId({userId})");
-        return await ticketService.GetTicketsByUserIdAsync(userId);
+        try
+        {
+            var tickets = await ticketService.GetTicketsByUserIdAsync(userId);
+            return tickets.Count > 0 ? Ok(tickets) : NotFound();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
     
     [HttpGet]
-    [Route("match/{id:long}")]
-    public async Task<ICollection<Ticket>> GetTicketsByMatchId([FromRoute] long matchId)
+    [Route("match/{matchId:long}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ICollection<Ticket>>> GetTicketsByMatchId([FromRoute] long matchId)
     {
-        Console.WriteLine($"GetTicketsByMatchId({matchId})");
-        return await ticketService.GetTicketsByMatchIdAsync(matchId);
-    }
-    
-    [HttpGet("{id:long}", Name = "GetTicket")]
-    public async Task<Ticket?> GetTicket([FromRoute] long id)
-    {
-        Console.WriteLine($"GetTicket({id})");
-        return await ticketService.GetTicketAsync(id);
+        try
+        {
+            var tickets = await ticketService.GetTicketsByMatchIdAsync(matchId);
+            return tickets.Count > 0 ? Ok(tickets) : NotFound();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
     
     [HttpPost]
-    public async Task<Ticket?> CreateTicket([FromBody] Ticket ticket)
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Ticket>> CreateTicket([FromBody] Ticket ticket)
     {
-        //should be done in the database trigger?
-        ticket.CreatedAt = DateTime.UtcNow;
-        ticket.UpdatedAt = DateTime.UtcNow;
-        Console.WriteLine($"CreateTicket({ticket})");
-        return await ticketService.CreateTicketAsync(ticket);
+        try
+        {
+            var createdTicket = await ticketService.CreateTicketAsync(ticket);
+            return CreatedAtAction(nameof(GetTicket), new {userId = createdTicket!.UserId, matchId = createdTicket.MatchId}, createdTicket);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
     
     [HttpPut]
-    public async Task<Ticket?> UpdateTicket([FromBody] Ticket ticket)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Ticket>> UpdateTicket([FromBody] Ticket ticket)
     {
-        ticket.UpdatedAt = DateTime.UtcNow;
-        Console.WriteLine($"UpdateTicket({ticket})");
-        return await ticketService.UpdateTicketAsync(ticket);
+        try
+        {
+            var updatedTicket = await ticketService.UpdateTicketAsync(ticket);
+            return updatedTicket != null ? Ok(updatedTicket) : NotFound();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
     
     [HttpDelete("{id:long}")]
-    public async Task DeleteTicket([FromRoute] long id)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> DeleteTicket([FromRoute] long id)
     {
-        Console.WriteLine($"DeleteTicket({id})");
-        await ticketService.DeleteTicketAsync(id);
+        try
+        {
+            await ticketService.DeleteTicketAsync(id);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
 }

@@ -6,10 +6,9 @@ namespace EFCData;
 
 public class TicketDao(PostgresDbContext context) : ITicketService
 {
-
-    public async Task<Ticket?> GetTicketAsync(long id)
+    public async Task<Ticket?> GetTicketAsync(long userId, long matchId)
     {
-        return await context.Tickets!.FindAsync(id);
+        return await context.Tickets!.FirstOrDefaultAsync(x => x.UserId == userId && x.MatchId == matchId);
     }
 
     public async Task<ICollection<Ticket>> GetTicketsByUserIdAsync(long userId)
@@ -24,6 +23,9 @@ public class TicketDao(PostgresDbContext context) : ITicketService
 
     public async Task<Ticket?> CreateTicketAsync(Ticket ticket)
     {
+        ticket.CreatedAt = DateTime.UtcNow;
+        ticket.UpdatedAt = ticket.CreatedAt;
+        
         await context.Tickets!.AddAsync(ticket);
         await context.SaveChangesAsync();
         //LINQ to find the ticket by composite key (UserId, MatchId)
@@ -32,6 +34,8 @@ public class TicketDao(PostgresDbContext context) : ITicketService
 
     public async Task<Ticket?> UpdateTicketAsync(Ticket ticket)
     {
+        ticket.UpdatedAt = DateTime.UtcNow;
+        
         context.Tickets!.Update(ticket);
         await context.SaveChangesAsync();
         return await context.Tickets!.FirstOrDefaultAsync(x => x.UserId == ticket.UserId && x.MatchId == ticket.MatchId);

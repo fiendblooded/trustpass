@@ -10,57 +10,125 @@ public class MatchController(IMatchService matchService) : ControllerBase
 {
     
     [HttpGet]
-    public async Task<ICollection<Match>> GetMatches()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ICollection<Match>>> GetMatches()
     {
-        Console.WriteLine("GetMatches()");
-        return await matchService.GetMatchesAsync();
+        try
+        {
+            var matches = await matchService.GetMatchesAsync();
+            return matches.Count > 0 ? Ok(matches) : NotFound();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
     
     [HttpGet]
     [Route("upcoming")]
-    public async Task<ICollection<Match>> GetUpcomingMatches()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ICollection<Match>>> GetUpcomingMatches()
     {
-        Console.WriteLine("GetUpcomingMatches()");
-        return await matchService.GetUpcomingMatchesAsync();
+        try
+        {
+            var matches = await matchService.GetUpcomingMatchesAsync();
+            return matches.Count > 0 ? Ok(matches) : NotFound();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
     
     [HttpGet]
     [Route("past")]
-    public async Task<ICollection<Match>> GetPastMatches()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ICollection<Match>>> GetPastMatches()
     {
-        Console.WriteLine("GetPastMatches()");
-        return await matchService.GetPastMatchesAsync();
+        try
+        {
+            var matches = await matchService.GetPastMatchesAsync();
+            return matches.Count > 0 ? Ok(matches) : NotFound();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
     
     [HttpGet("{id:long}", Name = "GetMatch")]
-    public async Task<Match?> GetMatch([FromRoute] long id)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Match>> GetMatch([FromRoute] long id)
     {
-        Console.WriteLine($"GetMatch({id})");
-        return await matchService.GetMatchAsync(id);
+        try
+        {
+            var match = await matchService.GetMatchAsync(id);
+            return match != null ? Ok(match) : NotFound();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
     
     [HttpPost]
-    public async Task<Match?> CreateMatch([FromBody] Match match)
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Match>> CreateMatch([FromBody] Match match)
     {
-        //should be done in the database trigger?
-        match.CreatedAt = DateTime.UtcNow;
-        match.UpdatedAt = DateTime.UtcNow;
-        Console.WriteLine($"CreateMatch({match})");
-        return await matchService.CreateMatchAsync(match);
+        try
+        {
+            Console.WriteLine(match);
+            var createdMatch = await matchService.CreateMatchAsync(match);
+            return CreatedAtRoute(nameof(GetMatch), new {id = createdMatch!.Id}, createdMatch);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(500, e.Message);
+        }
     }
     
     [HttpPut]
-    public async Task<Match?> UpdateMatch([FromBody] Match match)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Match>> UpdateMatch([FromBody] Match match)
     {
-        match.UpdatedAt = DateTime.UtcNow;
-        Console.WriteLine($"UpdateMatch({match})");
-        return await matchService.UpdateMatchAsync(match);
+        try
+        {
+            var updatedMatch = await matchService.UpdateMatchAsync(match);
+            return updatedMatch != null ? Ok(updatedMatch) : NotFound();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
     
     [HttpDelete("{id:long}")]
-    public async Task DeleteMatch([FromRoute] long id)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> DeleteMatch([FromRoute] long id)
     {
-        Console.WriteLine($"DeleteMatch({id})");
-        await matchService.DeleteMatchAsync(id);
+        try
+        {
+            await matchService.DeleteMatchAsync(id);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
 }

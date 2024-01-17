@@ -5,8 +5,8 @@ namespace Entities;
 [Table("tickets")]
 public class Ticket
 {
-    public int UserId { get; set; }
-    public int MatchId { get; set; }
+    public long UserId { get; set; }
+    public long MatchId { get; set; }
     public string? Entrance { get; set; }
     public string? Seat { get; set; }
     

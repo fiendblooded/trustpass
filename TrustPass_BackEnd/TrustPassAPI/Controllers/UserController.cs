@@ -4,30 +4,45 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace TrustPassAPI.Controllers;
 
+// Controller action return types in ASP.NET Core web API:
+// https://learn.microsoft.com/en-us/aspnet/core/web-api/action-return-types?view=aspnetcore-8.0
+
 [ApiController]
 [Route("[controller]")]
-public class UserController : ControllerBase
+public class UserController(IUserService userService) : ControllerBase
 {
-    private readonly IUserService _userService;
-    
-    public UserController(IUserService userService)
-    {
-        _userService = userService;
-    }
-    
-    
     [HttpGet]
-    public async Task<ICollection<User>> GetUsers()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ICollection<User>>> GetUsers()
     {
-        Console.WriteLine("GetUsers()");
-        return await _userService.GetUsersAsync();
+        try
+        {
+            var users = await userService.GetUsersAsync();
+            return users.Count > 0 ? Ok(users) : NotFound();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
     
     [HttpGet("{id:long}", Name = "GetUser")]
-    public async Task<User?> GetUser([FromRoute] long id)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<User>> GetUser([FromRoute] long id)
     {
-        Console.WriteLine($"GetUser({id})");
-        return await _userService.GetUserAsync(id);
+        try
+        {
+            var user = await userService.GetUserAsync(id);
+            return user != null ? Ok(user) : NotFound();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
     // [HttpGet("mongo/{id:long}", Name = "GetMongoUser")]
     // public async Task<MongoUser?> GetMongoUser([FromRoute] long id)
@@ -37,13 +52,20 @@ public class UserController : ControllerBase
     // }
 
     [HttpPost]
-    public async Task<User?> CreateUser([FromBody] User user)
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<User>> CreateUser([FromBody] User user)
     {
-        //should be done in the database trigger?
-        user.CreatedAt = DateTime.UtcNow;
-        user.UpdatedAt = DateTime.UtcNow;
-        Console.WriteLine($"CreateUser({user})");
-        return await _userService.CreateUserAsync(user);
+        try
+        {
+            var createdUser = await userService.CreateUserAsync(user);
+            return CreatedAtRoute(nameof(GetUser), new {id = createdUser!.Id}, createdUser);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
     // [HttpPost("mongo")]
     // public async Task<MongoUser?> CreateMongoUser([FromBody] MongoUser user)
@@ -54,17 +76,36 @@ public class UserController : ControllerBase
     // }
     
     [HttpPut]
-    public async Task<User?> UpdateUser([FromBody] User user)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<User>> UpdateUser([FromBody] User user)
     {
-        user.UpdatedAt = DateTime.UtcNow;
-        Console.WriteLine($"UpdateUser({user})");
-        return await _userService.UpdateUserAsync(user);
+        try
+        {
+            var updatedUser = await userService.UpdateUserAsync(user);
+            return Ok(updatedUser);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
     
     [HttpDelete("{id:long}")]
-    public async Task DeleteUser([FromRoute] long id)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> DeleteUser([FromRoute] long id)
     {
-        Console.WriteLine($"DeleteUser({id})");
-        await _userService.DeleteUserAsync(id);
+        try
+        {
+            await userService.DeleteUserAsync(id);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
 }

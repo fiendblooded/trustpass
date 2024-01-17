@@ -19,6 +19,9 @@ public class MatchDao(PostgresDbContext context) : IMatchService
 
     public async Task<Match?> CreateMatchAsync(Match match)
     {
+        match.CreatedAt = DateTime.UtcNow;
+        match.UpdatedAt = match.CreatedAt;
+        
         await context.Matches!.AddAsync(match);
         await context.SaveChangesAsync();
         return await context.Matches!.FindAsync(match.Id);
@@ -26,6 +29,8 @@ public class MatchDao(PostgresDbContext context) : IMatchService
 
     public async Task<Match?> UpdateMatchAsync(Match match)
     {
+        match.UpdatedAt = DateTime.UtcNow;
+        
         context.Matches!.Update(match);
         await context.SaveChangesAsync();
         return await context.Matches!.FindAsync(match.Id);
@@ -42,12 +47,12 @@ public class MatchDao(PostgresDbContext context) : IMatchService
     public async Task<ICollection<Match>> GetUpcomingMatchesAsync()
     {
         //LINQ to get all matches where the 'when' is in the future
-        return await context.Matches!.Where(x => x.When > DateTime.Now).ToListAsync();
+        return await context.Matches!.Where(x => x.When > DateTime.UtcNow).ToListAsync();
     }
 
     public async Task<ICollection<Match>> GetPastMatchesAsync()
     {
         //LINQ to get all matches where the 'when' is in the past
-        return await context.Matches!.Where(x => x.When < DateTime.Now).ToListAsync();
+        return await context.Matches!.Where(x => x.When < DateTime.UtcNow).ToListAsync();
     }
 }
